@@ -1,0 +1,261 @@
+= Environnement de développement JAVA / AngularJS : Besoins 2018
+Sylvain Masson <sylvain.masson@loire-atlantique.fr>
+:toc: left
+:toc-title: Sommaire
+:toclevels: 3
+:sectnums:
+:icons: font
+:source-highlighter: highlightjs
+
+== Présentation générale
+
+=== Contexte du projet
+
+L'environnement JAVA date de 2007. Depuis cette date, il a beaucoup évolué et de manière régulière. 
+La dernière mise à jour majeur de l'environnement date de fin 2015 avec la mise en place de l'intégration continue.
+Dans le même temps, les outils que ce soit côté serveur, côté client et côté intégration continue ont continué à évoluer.
+De plus, le gestionnaire de source SVN utilisé actuellement est toujours celui mise en place en 2007. +
+Le futur travail en équipe mixte département et prestataire nécessite de mettre en place de nouveaux outils et actualiser l'existant afin de travailler de manière plus efficace ensemble.
+
+=== Objectifs attendus
+
+L'évolution de l'environnement de développement a plusieurs objectifs :
+- Simplifier l'installation des outils sur le poste du développeur afin d'avoir une prise en main plus rapide
+- Fluidifier le fonctionnement de l'intégration continue
+- Faciliter le travail à plusieurs sur un même projet
+- Simplifier et augmenter la productivié sur la partie cliente et serveur
+- Mettre à jour les outils afin qu'ils soient up to date
+- Aller vers le principe de documentation as a code, les pratiques de tests afin de respecter les exigences et augmenter la qualité.
+
+== Partie spécification et expression de Besoins
+
+=== Besoin
+
+Historiquement, cette partie est traitée en amont du travail du développeur en produisant des spécifications au format bureautique. +
+Au cours du développement et de la vie du produit, les exigences et les besoins évoluent et souvent la documentation n'est plus à jour ou cela demande un gros effort pour qu'elle le soit. +
+L'idée est d'aller vers les pratiques documentation as a code, l'agilité et le behavior driven dévelopment.
+
+=== Documentation (prise en charge en interne)
+
+.Besoins
+
+La documentation de l'application (spécifications, document d'architecture, d'installation, d'exploitation) doit être vue comme du code.
+C'est à dire qu'elle est générée par l'intégration continue et versionnée à l'identique du code dans le gestionnaire de source.
+Les outils comme Asciidoc permettent de générer la documentation en plusieurs formats. On pourrait imaginer stocker la documentation html et / ou pdf avec l'application elle même lors du déploiement. +
+Elle serait alors toujours accessible et à jour.
+
+.Outillage
+
+Asciidoc ou équivalent
+
+.Bénéfice attendue
+
+Documentation à jour et accessible par tous.
+
+.Livrables attendus
+
+- Projet exemple avec génération de la documentation par maven et l'intégration continue (déjà fait)
+- Documentation de mise en place de la solution
+
+=== Exigences
+
+.Besoins
+
+Les spécifications permettent au développeur de savoir ce qu'il y a à faire et sont souvent un début d'implémentation de la solution mais elle ne lui permettent pas toujours de connaître le besoin et les exigences. +
+Des outils comme cucumber permettent d'écrire les exigences en français. De plus, ce travail peut être fait en commun avec la MOA.
+Exemple d'exigence, syntaxe soit quand alors (given, when, then) :
+
+- Soit un utisateur connu de l'application
+- Quand je me connecte
+- Alors j'accède à la page d'accueil de l'application
+
+Ces exigences peuvent être écrite en amont du développement. Après celui-ci, la validation de l'exigence peut être implémentée et ainsi vérifiée qu'elle est belle et bien faite. +
+Bien sûr, ces tests fonctionnels doivent être executés à chaque changement de code pour valider la non régression.
+
+.Outillage
+
+Cucumber Java ou Javascript
+
+.Bénéfice attendue
+
+- Expliciter et partager clairement les exigences entre tous les acteurs du projet.
+- Augmenter la qualité des livrables via des tests fonctionnels et de non régression
+
+.Livrables attendus
+
+Des projets cucumber ont déjà été faits sur certaines applications. Il s'agira donc de reprendre l'existant et de l'intégrer dans le nouvel environnement.
+
+- Projet squelette en cucumber
+- Mise en place d'outil dans l'intégration continue pour partager autour de ces exigences
+- Documentation de la mise en place des outils
+
+=== Ticketing
+
+.Besoins
+ 
+Pour l'instant, le ticketing se fait dans Mantis. D'une part, la version de l'outil est vieillissante. 
+D'autre part, aucun lien n'est fait avec le code et les commits sauf manuellement de la part du développeur.
+Cette façon de fonctionner n'est pas efficace et génératrice d'erreur.
+
+En lien avec l'installation d'une plateforme Gitlab, le ticketing devrait se faire dans cet outil afin que le lien avec le code se fasse automatiquement.
+
+.Bénéfice attendue
+
+- Lien entre les commits et les tickets
+- Solution intégrée avec le gestionnaire de source
+
+.Livrables attendus
+
+- Installation de la plateforme Gitlab
+
+== Partie Usine de développement : intégration continue et gestionnaire de source
+
+=== Jenkins
+
+Le jenkins qui est le cœur de l'intégration continue est instable. 
+Il nécessite des redémarrages régulier. 
+Nous utilisons la version 1.6.3. 
+Depuis, jenkins a été totalement refondu dans sa version 2 et permet de gérer les jobs comme du code (commité avec le code source).
+Le passage à Jenkins 2 permettra de stabiliser cette brique.
+
+.Bénéfice attendue
+
+- Gestion du déploiement comme du code avec l'intégration des jenkins file dans le code source
+- Fiabilisation de la plateforme
+
+.Livrables attendus
+
+- Installation du nouveau jenkins
+- Documentation de l'installation
+- Passage des scripts existants BUILD, RELEASE, DEPLOY et CUCUMBER en jenkins file dans le projet squelette
+
+=== Nexus
+
+Le nexus dans la version 2.1.1 ne permet pas de gérer les dépendances Javascript (NPM). 
+Le passage en version 3 permet de se servir du nexus en proxy pour les dépendances NPM comme on fait actuellement avec les dépendances JAVA.
+Cela nous permettrait aussi de créer nos dépendances sans les déployer sur les dépôts NPM en ligne.
+
+.Bénéfice attendue
+
+- Intégration des dépendances Javascript
+- Accélération de la construction des livrables
+
+.Livrables attendus
+
+- Installation du nouveau nexus
+- Documentation de l'installation
+- Intégration des dépendances NPM dans le nexus
+
+=== Gestionnaire de source
+
+Nous utilisons SVN dont la version n'a pas évolué depuis 2006. Le passage à Git et la plateforme Gitlab permettra de collaborer de manière plus efficace autour du code :
+- Dépôt décentralisé sur chaque poste
+- Merge plus efficace sur Git
+- Documentation (Asciidoc) intégrée sur la plateforme
+- Intégration d'un wiki
+- Outil de ticketing intégré dans la plateforme avec suivi automatiques de résolution des tickets sur les commits.
+
+L'historique est gardée sur le SVN et la migration des applications se fera au fur et à mesure par opportunité.
+
+.Bénéfice attendue
+
+- Collaboration autour du code
+- Développement en équipe facilitée
+
+.Livrales attendus
+
+- Installation de la plateforme Gitlab
+- Documentation de l'installation
+- Intégration des projets les plus récents sur la plateforme
+- Modification des jobs Jenkins pour en prendre en compte la nouvelle plateforme
+- Guide d'utilisation rapide de Git
+
+== Partie cliente
+
+=== Mise en place de VueJs
+
+.Constat
+AngularJS et les composants côté client (node, bower, grunt) ont été mis en place en 2015. 
+Cette écosystème évolue en permanence et surtout très vite. 
+Il tend cependant à se stabiliser avec l'émergence d'outils de plus en plus utilisés par la communauté (node, npm, webpack …). 
+Il semble important de faire évoluer cette partie en remplaçant des briques abandonnées (bower) tout en mutualisant certaines autres afin de simplifier la prise en main et le démarrage d'une application.
+
+.Evolution
+
+Dans cet optique, VueJS est un framework intéressant à plusieurs points de vue :
+
+- Il est léger
+- Il est rapide
+- Pur javascript, s'intégre facilement avec tous l'écosystème très riche autour du Javascript
+- Hybride entre AngularJs (MVC) et Angular (orientée composant ou plutôt template dans VueJS)
+- Très bien documenté (même en français)
+- Modulable, on prend ce que l'on désire selon son besoin mais permet d'aller aussi loin qu'Angular ou React.
+- Totalement Open source
+- Monter en compétence rapide si on maîtrise AngularJS
+- CLI (Command Line Interface) très bien faîte et bien intégré avec Webpack
+
+Les inconvéniens que l'on pourrait citer : 
+
+- Pérennité, framework à la mode pour l'instant mais est ce que cela va durer ...
+- Petite communauté mais qui grossit rapidement (toujours l'effet de mode)
+- Pas de soutien type Facebook pour React ou Google pour Angular
+
+La mise en place de VueJS avec VueCli et webpack permettra d'avoir un outillage complètement intégré pour le développement. +
+En effet, via NPM et WebPack, VueCli permet d'avoir un environnement de développement complet avec vérification de syntaxe (linter) et live reload. +
+Il propose aussi de compiler les livrables uglifiés, mimifiés et possédant un timestamp pour la gestion du cache navigateur. +
+Il propose enfin un environnement de test complet avec tests unitaires et éventuellement tests end to end.
+
+.Bénéfice attendue
+
+- Simplification de la partie cliente (moins d'outils)
+- Retour vers des "standards" : webpack et npm.
+- Performance et légèreté de VueJS
+- Framework "up to date"
+
+.Livrables attendus
+
+- Intégration d'un projet vue "stand alone" dans l'intégration continue (compilation avec NPM)
+- Intégration de la partie vue dans un projet Java avec compilation Maven.
+- Reprise des mécanismes d'authentification et de gestion de session fait en AngularJs.
+- Choix d'un framework de test unitaires : Jest ou Karma + Mocha
+- Exemple d'implémentation de tests unitaires
+
+== Partie Serveur Java (facultative)
+
+.Constat
+
+La partie serveur a évolué au fur et à mesure du temps entre 2007 et maintenant. +
+Le socle technique avait été mise en place initialement et a été mise à jour à chaque évolution, la dernière fois en 2014. Celui-ci est maintenant trop complexe et la configuration dans les fichiers xml est elle aussi trop riche. 
+Il serait nécessaire de remettre tout cela à plat. +
+Pour l'instant, nous déployons classiquement un war comprenant toutes les livrables de l'application (côté serveur et côté client).
+ La configuration est faîte à l'extérieur de l'application pour la source de données JNDI et les variables d'environnement dans un fichier de properties dans le tcServer. Nous avons donc des adhérences avec l'environnement où est installée l'application. : dépendance à la JVM et au tcServer.
+
+.Evolution
+
+- Passage à Spring Boot avec intégration du serveur d'application dans le livrable
+- Passage à Java 8
+- Nettoyage du code du socle technique et simplication de la configuration Spring
+
+.Bénéfice attendue
+
+- Rattraper notre retard sur les versions de Java. La version 6 n'est plus maintenue et la 7 le sera aussi bientôt.
+- Simplification de la configuration et du code. Beaucoup de choses qui nécessitaient de la configuration sont maintenant plus simple à mettre en place (exemple la gestion des transactions).
+- La mise en place de Spring Boot permet de démarrer plus rapidement le développement d'une application et de packager le serveur d'application dans le livrable. 
+- Simplification du déploiement et passage plus aisé à la conteneurisation (devops).
+
+.Livrables attendus
+
+- Projet squelette avec Spring Boot et Java 8
+- Documentation de migration d'une applicationa actuelle vers Spring Boot
+- Migration de quelques applications préalablement choisis conjointement
+- Documentation des mises à jours et évolutions.
+
+
+
+
+
+
+
+
+
+

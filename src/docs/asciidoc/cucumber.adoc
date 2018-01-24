@@ -1,0 +1,694 @@
+:description: Présentation cucumber à l'unité web et collaboratif
+:backend: revealjs
+:author: Sylvain Masson, Guillaume Gautier, Julien Bayle
+// Themes : default, beige, moon, blood, night, serif, simple, sky, solarized
+:linkattrs:
+:idprefix:
+:revealjs_theme: dep44
+:source-highlighter: highlightjs
+:revealjs_slideNumber: true
+:revealjs_center: false
+:revealjs_history: true
+:icons: font
+ifndef::imagesdir[:imagesdir: images]
+
+= Présentation Cucumber
+
+== Sommaire
+
+[%step]
+. Introduction et définition
+. Mise en œuvre Java pour mobilité agent
+. Mise en œuvre Javascript pour AssMat
+. Retour d'expérience et bilan
+
+== Introduction
+
+=== Stratégie de test
+
+[quote, Source : Octo]
+____
+image::test-strategy.jpg[scalediwidth=100%]
+____
+
+[background-video="images/cucumber.mp4",background-video-loop=true,background-video-muted=true]
+=== Cucumber mais c'est quoi donc ?
+
+=== Cucumber 
+
+[%step]
+* Un outil pour tester les logiciels
+* Execute des tests d'acceptation en BDD (Behavior Driven Development)
+* Permet de construire et partager des scénarios de tests compréhensibles par tous les acteurs d'un projet
+* Initialement écrit en Ruby mais supporte d'autres languages : Java, Javascript, PHP ...
+
+[background-video="images/homer.mp4",background-video-loop=true,background-video-muted=true]
+=== BDD, kezako
+
+=== BDD, définition
+
+[quote, Wikipedia]
+__"Le behavior-driven development (ou BDD) est une méthode agile qui encourage la collaboration entre les développeurs, les responsables qualités et les intervenants non-techniques participant à un projet de logiciel."__
+
+Il a été conçu en 2003 par Dan North pour aller au delà du Test Driven Development.
+
+=== Pratiques BDD
+
+[%step]
+* La participation de toutes les parties prenantes dans le processus de développement de logiciels.
+* L'utilisation d'exemples pour décrire le comportement réel de l'application.
+* Automatisation de ces exemples pour fournir des tests de non-régression.
+* Les pratiques BDD sont implémentés à travers le langage *Gherkin*
+
+[NOTE.speaker]
+--
+BDD objectif : améliorer la compréhension, la collaboration et le rapprochment du métier, du Product Owner, des développeurs, des testeurs.
+
+Acteur du projet rassembler autour d’un langage commun : le Gherkin.
+--
+
+=== Pratiques BDD
+
+image::bdd-dialogue.png[scalediwidth=50%]
+* Un dialogue restauré
+
+[NOTE.speaker]
+--
+Un dialogue restauré : encourage le dialogue autour du fonctionnel et seulement du fonctionnel
+--
+
+=== Pratiques BDD, avantages
+
+* Un développement guidé et documenté
+* Une documentation à jour et toujours disponible
+* Des tests en continu sur les fonctionnalités
+
+[NOTE.speaker]
+--
+Un développement guidé et documenté : plus compréhensible et lisible que les TU
+Une documentation à jour et toujours disponible : utilisation des possibilités du gestionnaire de source
+--
+
+
+
+=== Gherkin
+
+image::TemplateUserStory.png[scalediwidth=50%]
+
+
+=== Gherkin, Scénario
+
+Une histoire est constituée d’un ou plusieurs scénarios. +
+Pour chaque scénario, on décrit :
+
+* Le nom du scénario
+* La description du scénario
+
+[NOTE.speaker]
+--
+http://blog.thiga.fr/product-management/bdd-gherkin-pour-ecrire-vos-user-stories/[BBD Gherkin]
+
+http://connect.adfab.fr/test/gherkin-et-les-tests-dacceptation[Gherkin]
+--
+
+=== Gherkin, Step
+
+Le scénario est une succession d’étapes (*Step*) permettant:
+
+* Soit de définir et de construire le contexte dans lequel le scénario va se dérouler *Given*,
+* soit de provoquer des événements ou des actions sollicitant le système *When*,
+* soit de vérifier que le comportement attendu a bien eu lieu *Then*. + 
+C’est généralement à ces étapes que l’on retrouvera les assertions (test).
+
+=== Gherkin, Step syntaxe
+
+|=== 
+
+| *Given* [an initial context] | *Etant donné* ou *Soit* [un contexte initial (les acquis)]
+
+| *When* [action] | *Quand* [un événement survient]
+
+| *Then* [expected result] | *Alors* [on s’assure de l’obtention de certains résultats]
+
+|=== 
+
+== Mise en œuvre Java pour mobilité agent
+ 
+image::mobilite.png[]
+
+[NOTE.speaker]
+--
+http://rec-mobilite-agents.loire-atlantique.fr/
+matricule test : 001204J
+--
+
+=== Choix d'implémentation
+
+Deux alternatives : 
+
+* Tests sur l'interface en simulant le navigateur : implémentation Cucumber en Javascript
+* Tests sur les web services : implémentation en JAVA.
+
+Choix de tester les web services en implémentant un client JAVA REST.
+
+=== Pourquoi ce Choix
+
+* Code java très proche du serveur JAVA REST déjà développé
+* Partage des classes modèles pour le client REST
+* Utilisation de JUnit pour piloter les tests cucumber
+
+-> Technologie déjà maîtrisé
+
+=== Rappel architecture
+
+image::archi.png[]
+
+=== Choix des scénarios
+
+* Décision de tester (sécuriser) la partie gestion des voeux
+* Implémentation du cas nominal : ce que "*devrait*" faire l'utilisateur
+* Vérification des règles de gestion, cas passant et cas d'erreurs
+
+=== Exemple feature cas nominal
+
+[source]
+----
+  @VOEU-1
+  Scénario: L'utilisateur fait un voeu de poste (cas nominal)
+    Soit un utilisateur connu
+    Quand il s'authentifie
+    Quand il met à false la saisie des voeux
+    Quand il récupère ses infos
+    Quand il met à jour ses informations complémentaires
+      | situation             | true    |
+      | ancienneteAnnee       | 2       |
+      | ancienneteMois        | 3       |
+      | aptitude              | true    |
+      | codeCadreEmploi       | 14      |
+      | candidature           | true    |
+      | nbCandidatureInterne  | 3       |
+      | nbCandidatureExterne  | 4       |
+      | transfertRegion       | true    |
+    Quand il récupère les postes sur lesquels il peut postuler
+    Quand il postule pour un poste
+    Alors le poste remonte dans la liste des voeux
+----
+
+=== Exemple cas d'erreur, code JAVA
+
+* Règle de gestion : +
+Si affectation permanente, l'ancienneté en année et en mois doit être différent de 0
+* Implémentation dans le code : 
+[source, java]
+----
+if ((infosComplementaires.getSituation() != null) && (infosComplementaires.getSituation())) {
+  if (((infosComplementaires.getAncienneteAnnee() == null)
+          || (infosComplementaires.getAncienneteAnnee() == 0))
+          && ((infosComplementaires.getAncienneteMois() == null)
+                  || (infosComplementaires.getAncienneteMois() == 0))) {
+      throw new AncienneteException(
+              "Le nombre d'année et de mois ne peuvent être tous les deux égaux à 0.");
+  }
+}
+----
+
+=== Exemple cas d'erreur, Test unitaire
+
+
+[source, java]
+----
+@Test(expected = AncienneteException.class)
+public void shouldReturnExceptionIfSituationTrueAncienneteAnnee0Mois0() throws DeniedUserException, EmptyResponseException, NbCandidatureException, AncienneteException {
+  InfosComplementairesDTO infosComplementaires = new InfosComplementairesDTO();
+  
+  infosComplementaires.setSituation(true);
+  infosComplementaires.setAncienneteAnnee(0);
+  infosComplementaires.setAncienneteMois(0);
+  agentService.saveInfosComplementaires(matricule, infosComplementaires);
+}
+----
+
+=== Exemple cas d'erreur, Feature
+
+[source]
+----
+@ENREGISTREMENT-INFOS-COMPLEMENTAIRES-ERREUR-ANCIENNETE-ANNEE-MOIS-0
+Scénario: L'utilisateur vérifie l'enregistrement de ses informations supplémentaires
+Erreur : si affectation permanente, l'ancienneté en année et en mois doit être différent de 0
+
+Soit un utilisateur connu
+Quand il s'authentifie
+Quand il met à false la saisie des voeux
+Quand il récupère ses infos
+Quand il met à jour ses informations complémentaires
+  | situation       | true    |
+  | ancienneteAnnee | 0       |
+  | ancienneteMois  | 0       |
+  | aptitude        | false   |
+  | candidature     | false   |
+  | transfertRegion | false   |
+  Alors l'appel de service retourne un code d'erreur "400"
+----
+
+=== Implémentation step
+
+.Step quand
+[source, java]
+----
+@Soit("^il met à jour ses informations complémentaires$")
+public void il_met_a_jour_ses_informations_complementaires(DataTable infosComplementaires) throws Throwable {
+    
+    try {
+        Map<String, String> infosComplementairesMap = infosComplementaires.asMap(String.class, String.class);
+        InfosComplementairesDTO infosComplementairesDTO = infosComplementairesMapper.map(infosComplementairesMap);
+        
+        agentResource.updateInfosComplementaires(worldBean.getUsername(), infosComplementairesDTO);
+    } catch (HttpClientErrorException e) {
+        worldBean.setLastException(e);
+    }
+}
+----
+
+.Step Alors
+[source, java]
+----
+@Alors("^l'appel de service retourne un code d'erreur \"(.*)\"$")
+public void l_appel_de_services_retourne_un_code_erreur(Integer code) throws Throwable {
+    assertThat(worldBean.getLastException().getStatusCode().value()).isEqualTo(code);
+}
+----
+
+=== Intégration continue
+
+image::usine.png[scaled=90%]
+
+=== Démonstration
+
+http://10.14.10.115:8080/jenkins/[Jenkins, window="_blank"]
+
+http://10.14.10.115:8080/jenkins/job/MOBILITE_AGENT_CUCUMBER/ws/mobilite-agent-cucumber/target/cucumber/index.html[Rapport cucumber, window="_blank"]
+
+== Mise en œuvre Javascript pour AssMat
+
+image::assmat.png[Cucumber Assmat,640,480]
+
+=== Exemple de scénario formulaire de contact
+
+[source]
+----
+@assmat @formulaire_contact
+  Feature: Formulaire de contact
+
+    Scenario: Demande de contact par email sans être connecté
+      Given La page du formulaire de contact
+      When L'utilisateur saisit le nom "Test", le prénom "Toto", le courriel: "test@mail.com", la commune "Nantes", le sujet "Problème avec le fonctionne du site", le message "Bonjour, j'ai rencontré un problème sur la page TRUC"
+      When L'utilisateur clique sur Valider
+      Then Un message de confirmation de l'envoi de l'email apparait
+
+    Scenario: Demande de contact par email champ nom vide
+     Given La page du formulaire de contact
+     When L'utilisateur clique sur Valider
+     Then Un message apparait pour indiquer que le champ 'Nom' ne peut être vide
+
+    Scenario: Demande de contact par email champ prenom vide
+      Given La page du formulaire de contact
+      When L'utilisateur saisit le champ 'Nom' avec "Test"
+      When L'utilisateur clique sur Valider
+      Then Un message apparait pour indiquer que le champ 'Prénom' ne peut être vide
+
+    Scenario: Demande de contact par email champ courriel vide
+      Given La page du formulaire de contact
+      When L'utilisateur saisit le champ 'Nom' avec "Test"
+      When L'utilisateur saisit le champ 'Prénom' avec "Toto"
+      When L'utilisateur clique sur Valider
+      Then Un message apparait pour indiquer que le champ 'Courriel' ne peut être vide
+
+    Scenario: Demande de contact par email champ courriel invalide
+      Given La page du formulaire de contact
+      When L'utilisateur saisit le champ 'Nom' avec "Test"
+      When L'utilisateur saisit le champ 'Prénom' avec "Toto"
+      When L'utilisateur saisit le champ 'Courriel' avec "qiijdoe"
+      When L'utilisateur clique sur Valider
+      Then Un message apparait pour indiquer que le courriel n'est pas dans un format valide
+
+    Scenario: Demande de contact par email champ commune vide
+      Given La page du formulaire de contact
+      When L'utilisateur saisit le champ 'Nom' avec "Test"
+      When L'utilisateur saisit le champ 'Prénom' avec "Toto"
+      When L'utilisateur saisit le champ 'Courriel' avec "test@mail.com"
+      When L'utilisateur clique sur Valider
+      Then Un message apparait pour indiquer que le champ 'Commune' ne peut être vide
+
+    Scenario: Demande de contact par email champ sujet vide
+      Given La page du formulaire de contact
+      When L'utilisateur saisit le champ 'Nom' avec "Test"
+      When L'utilisateur saisit le champ 'Prénom' avec "Toto"
+      When L'utilisateur saisit le champ 'Courriel' avec "test@mail.com"
+      When L'utilisateur saisit le champ 'Commune' avec "Nantes"
+      When L'utilisateur clique sur Valider
+      Then Un message apparait pour indiquer que le champ 'Sujet' ne peut être vide
+
+    Scenario: Demande de contact par email champ message vide
+      Given La page du formulaire de contact
+      When L'utilisateur saisit le champ 'Nom' avec "Test"
+      When L'utilisateur saisit le champ 'Prénom' avec "Toto"
+      When L'utilisateur saisit le champ 'Courriel' avec "test@mail.com"
+      When L'utilisateur saisit le champ 'Commune' avec "Nantes"
+      When L'utilisateur sélectionne "Problème de fonctionnement du site" dans la liste de sujets
+      When L'utilisateur clique sur Valider
+      Then Un message apparait pour indiquer que le champ 'Votre message' ne peut être vide
+----
+
+=== Implémentation du scénario formulaire de contact
+
+[source]
+----
+var constantes = require('../../support/constantes');
+var assert = require('cucumber-assert');
+var utils = require('../../support/utils');
+
+module.exports = function() {
+  this.World = require('../../support/world.js').World;
+
+  this.Given(/^La page du formulaire de contact$/, function(callback) {
+    this.browser
+      .get(constantes.environnement.host + '/jcms/descriptive-urlstextportal-format-fr-tle_61032')
+      .title()
+      .then(function(title) {
+        console.log(title);
+        callback();
+      })
+      .catch(function(e) {
+        utils.handleError(e, callback);
+      });
+  });
+
+  this.When(/^Les informations nom, prénom et courriel sont pré\-remplies$/, function(callback) {
+    this.browser
+      .elementById('name')
+      .text()
+      .then(function(){
+        callback();
+      })
+      .catch(function(e) {
+        utils.handleError(e, callback);
+      });
+  });
+
+  this.When(/^L'utilisteur saisit la commmune avec "([^"]*)", le sujet "([^"]*)" et le message "([^"]*)"$/, function(commune, sujet, message, callback) {
+    this.browser
+      .elementById('cityName')
+      .type(commune)
+      .elementById('subject')
+      .type(sujet)
+      .elementById('message')
+      .type(message)
+      .then(function(){
+        callback();
+      })
+      .catch(function(e) {
+        utils.handleError(e, callback);
+      });
+    
+  });
+
+  this.When(/^L'utilisateur clique sur Valider$/, function(callback) {
+    this.browser
+      .elementById('submit')
+      .click()
+      .then(function(){
+        callback();
+      })
+      .catch(function(e) {
+        utils.handleError(e, callback);
+      });
+  });
+
+  // FIXME le champ commune avec l'autocomplétion est bloquant
+  this.Then(/^Un message de confirmation de l'envoi de l'email apparait$/, function(callback) {
+    this.browser.waitForElementByCss('.alert-block', 5000, function(err){
+      if (err) {
+        callback.fail();
+      } else {
+        this.browser
+          .elementByCss('.alert-block')
+          .text()
+          .then(function(text){
+            assert.equal(text, constantes.messages.contact.envoyer, callback, "Un mail a été envoyé");
+          })
+          .catch(function(e){
+            utils.handleError(e, callback);
+          });
+      }
+    }.bind(this));
+  });
+
+  this.When(/^L'utilisateur saisit le nom "([^"]*)", le prénom "([^"]*)", le courriel: "([^"]*)", la commune "([^"]*)", le sujet "([^"]*)", le message "([^"]*)"$/,
+    function(nom, prenom, courriel, commune, sujet, message, callback) {
+    this.browser
+      .elementById('name')
+      .type(nom)
+      .elementById('firstName')
+      .type(prenom)
+      .elementById('courriel')
+      .type(courriel)
+      .elementById('cityName')
+      .type(commune)
+      .elementById('subject')
+      .type(sujet)
+      .elementById('message')
+      .type(message)
+      .then(function(){
+        callback();
+      })
+      .catch(function(e) {
+        utils.handleError(e, callback);
+      });
+  });
+
+  this.Then(/^Un message apparait pour indiquer que le champ 'Nom' ne peut être vide$/, function(callback) {
+    this.browser.waitForElementByCss('.alert-block', 5000)
+      .text()
+      .then(function(texte){
+        assert.equal(texte, constantes.messages.contact.erreur.nom, callback, 'Le message est affiché');
+      })
+      .catch(function(e){
+        utils.handleError(e, callback);
+      });
+  });
+
+  this.When(/^L'utilisateur saisit le champ 'Nom' avec "([^"]*)"$/, function(nom, callback) {
+    this.browser
+      .elementById('name')
+      .type(nom)
+      .then(function(){
+        callback();
+      })
+      .catch(function(e) {
+        utils.handleError(e, callback);
+      });
+  });
+
+  this.Then(/^Un message apparait pour indiquer que le champ 'Prénom' ne peut être vide$/, function(callback) {
+    this.browser.waitForElementByCss('.alert-block', 5000)
+      .text()
+      .then(function(texte){
+        assert.equal(texte, constantes.messages.contact.erreur.prenom, callback);
+      })
+      .catch(function(e){
+        utils.handleError(e, callback);
+      });
+  });
+
+  this.When(/^L'utilisateur saisit le champ 'Prénom' avec "([^"]*)"$/, function(prenom, callback) {
+    this.browser
+      .elementById('firstName')
+      .type(prenom)
+      .then(function(){
+        callback();
+      })
+      .catch(function(e) {
+        utils.handleError(e, callback);
+      });
+  });
+
+  this.Then(/^Un message apparait pour indiquer que le champ 'Courriel' ne peut être vide$/, function(callback) {
+    this.browser.waitForElementByCss('.alert-block', 5000)
+      .text()
+      .then(function(texte){
+        assert.equal(texte, constantes.messages.contact.erreur.courriel, callback);
+      })
+      .catch(function(e){
+        utils.handleError(e, callback)
+      });
+  });
+
+  this.When(/^L'utilisateur saisit le champ 'Courriel' avec "([^"]*)"$/, function(courriel, callback) {
+    this.browser
+      .elementById('courriel')
+      .type(courriel)
+      .then(function(){
+        callback();
+      })
+      .catch(function(e) {
+        utils.handleError(e, callback);
+      });
+  });
+
+  this.Then(/^Un message apparait pour indiquer que le courriel n'est pas dans un format valide$/, function(callback) {
+    this.browser.waitForElementByCss('.alert-block', 5000)
+      .text()
+      .then(function(texte){
+        assert.equal(texte, constantes.messages.contact.erreur.courriel_malformed, callback);
+      })
+      .catch(function(e){
+        utils.handleError(e, callback);
+      });
+  });
+
+  this.Then(/^Un message apparait pour indiquer que le champ 'Commune' ne peut être vide$/, function(callback) {
+    this.browser.waitForElementByCss('.alert-block', 5000)
+      .text()
+      .then(function(texte){
+        assert.equal(texte, constantes.messages.contact.erreur.commune, callback);
+      })
+      .catch(function(e){
+        utils.handleError(e, callback);
+      });
+  });
+
+  this.When(/^L'utilisateur saisit le champ 'Commune' avec "([^"]*)"$/, function(commune, callback) {
+    this.browser
+      .elementById('cityName')
+      .type(commune)
+      .then(function(){
+        callback();
+      })
+      .catch(function(e) {
+        utils.handleError(e, callback);
+      });
+  });
+
+  this.Then(/^Un message apparait pour indiquer que le champ 'Sujet' ne peut être vide$/, function(callback) {
+    this.browser.waitForElementByCss('.alert-block', 5000)
+      .text()
+      .then(function(texte){
+        assert.equal(texte, constantes.messages.contact.erreur.sujet, callback);
+      })
+      .catch(function(e){
+        utils.handleError(e, callback);
+      });
+  });
+
+  this.When(/^L'utilisateur sélectionne "([^"]*)" dans la liste de sujets$/, function(sujet, callback) {
+    this.browser
+      .elementById('subject')
+      .type(sujet)
+      .then(function(){
+        callback();
+      })
+      .catch(function(e) {
+        utils.handleError(e, callback);
+      });
+  });
+
+  this.Then(/^Un message apparait pour indiquer que le champ 'Votre message' ne peut être vide$/, function(callback) {
+    this.browser.waitForElementByCss('.alert-block', 5000)
+      .text()
+      .then(function(texte){
+        assert.equal(texte, constantes.messages.contact.erreur.message, callback);
+      })
+      .catch(function(e){
+        utils.handleError(e, callback);
+      });
+  });
+
+};
+----
+
+== Retour d'expérience et bilan
+
+image::bilan.gif[]
+
+=== Retour d'expérience JAVA
+
+* Cucumber JAVA facile à mettre en place, permet d'avoir des résultats "assez rapidement".
+** Charge : 3 jours Softeam, 2 jours interne -> 13 scénarios, 86 steps 
+* Une personne peut développer l'application et une autre peut coder le client cucumber.
+* Prend du temps si tous les tests d'acceptation sont implémentés.
+
+-> Se concentrer sur la partie critique de l'application
+
+=== Retour d'expérience AssMat
+
+
+=== Bilan
+
+* A faire sur tous les projets ?
+  ** Non car prend du temps
+  ** Mais cela sécurise beaucoup les développements
+* Guerkin -> remplace le cahier de recette  
+** Une partie des features testées manuellement
+** L'autre partie est automatisée
+* *Ecrire les features avant le développement*
+
+
+=== Perspectives et améliorations
+
+* Partager la méthode avec les profils fonctionnels
+* Tests écrits par celui qui écrit les spécifications fonctionnelles
+* Créer l'environnement ex-nihilo pour les tests et détruit ensuite avec :
+** Docker
+** SaltStack 
+** Autres ...
+
+[NOTE.speaker]
+--
+* Introduction : Julien
+* Exemples (Sylvain, Guillaume)
+* Bilan (Sylvain)
+
+=== Introduction
+
+wikipedia article cucumber
+
+Style BDD
+
+Guerkin
+
+pyramide des tests
+
+exemple de Sylvain de feature (en français)
+
+exemple dans Assmat de feature (en anglais)
+
+guerkin -> code, comment ?
+
+* Sylvain -> Cucumber (client REST sur les WS)
+* Assmat -> CucumberJS (javascript) -> mauvaise idée d'après Medhi
+
+On montre l'implémentation en java et JS de 2/3 features = montrer le code
+
+Montrer pilotage du navigateur auto ? Non : juste le dire
+
+Rapport dans Jenkins de Sylvain.
+
+Critères : 3 j de dev = 3 j de test -> double le prix de la réalisation du projet
+
+Modifier le dev = modifier les tests
+
+=== BILAN
+
+Doit-on le faire sur tous les projets ? NON : car lourd, à faire suivant l'utilité pour un projet donné.
+
+Bilan personnel de notre utilisation.
+
+Demande une expertise et une méthodologie qui prend du temps.
+
+Environnement pour les tests créé ex-nihilo pour les tests et détruit ensuite. -> à voir dans le futur avec mise en place de Docker ?
+
+Guerkin -> remplace le cahier de recette. Tous les features ne seront pas forcément implémenté en Cucumber, certains pourront être recettés par un humain.
+
+Ne pas faire l'erreur d'écrire les feature après le dev ! Les tests doivent être écris par les mêmes personnes qui créent les spécifications.
+ 
+--

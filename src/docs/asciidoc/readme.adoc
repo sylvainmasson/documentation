@@ -1,0 +1,31 @@
+= Utilisation revealjs
+
+== Prérequis
+
+* Installation de la ligne de commande gem : 
+https://rubygems.org/pages/download
+
+* Configuration du proxy CD44 dans les variables d'environnement Windows
+
+== Installation
+
+* Installation d'asciidoctor-revealjs
+
+[source]
+----
+gem install asciidoctor-revealjs # latest released version
+----
+
+* Récupération de reveal.js, permet d'effectuer la présentation hors ligne
+
+[source]
+----
+$ git clone -b 3.3.0 --depth 1 https://github.com/hakimel/reveal.js.git
+----
+
+== Rendu de l'asciidoc en slides
+
+[source]
+----
+asciidoctor-revealjs CONTENT_FILE.adoc
+----
